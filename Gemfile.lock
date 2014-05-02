@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 1992aa22c47b8e9a8a5e53150de70dfd9322a1e9
-  branch: master
+  revision: 32d56943cf31eb834b434f8f8c0721e4637e5a70
+  branch: simple_xml_parser
   specs:
     health-data-standards (3.4.5)
       activesupport (~> 3.2.14)
@@ -18,10 +18,17 @@ GIT
 
 GIT
   remote: https://github.com/projecttacoma/bonnie_bundler.git
-  revision: 5242edef8c16fc1fbb904101e68a82b30a72c845
-  branch: master
+  revision: 0012a0c6f65ab05403304792ee63f943204324e9
+  branch: simple_xml_parser
   specs:
     bonnie_bundler (1.0.0)
+
+GIT
+  remote: https://github.com/projecttacoma/simplexml_parser.git
+  revision: b11b267042c1ecd3914b81259acc4bc28c8a0944
+  branch: master
+  specs:
+    simplexml_parser (1.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -143,7 +150,7 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    memoist (0.9.1)
+    memoist (0.9.2)
     method_source (0.8.2)
     mime-types (1.25.1)
     mini_portile (0.5.3)
@@ -303,6 +310,7 @@ DEPENDENCIES
   rubyzip (< 1.0.0)
   rvm1-capistrano3
   simplecov
+  simplexml_parser!
   sprockets (= 2.2.2.backport1)
   systemu
   therubyracer
