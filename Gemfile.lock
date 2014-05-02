@@ -18,7 +18,7 @@ GIT
 
 GIT
   remote: https://github.com/projecttacoma/bonnie_bundler.git
-  revision: c13a8c648aa2943413dbf5aa547ae413b68a8716
+  revision: 1a73bfe0cff21f318e810de5110bbf20b2d76f79
   branch: simple_xml_parser
   specs:
     bonnie_bundler (1.0.0)
