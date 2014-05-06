@@ -210,12 +210,12 @@ describe 'PatientBuilderView', ->
 
     it "adds a scalar field value", ->
       expect(@patientBuilder.model.get('source_data_criteria').first().get('field_values').length).toEqual 0
-      @addScalarFieldValue 'DOSE', 1, 'mg'
+      @addScalarFieldValue 'SOURCE', 1, 'unit'
       expect(@patientBuilder.model.get('source_data_criteria').first().get('field_values').length).toEqual 1
       expect(@patientBuilder.model.get('source_data_criteria').first().get('field_values').first().get('type')).toEqual 'PQ'
-      expect(@patientBuilder.model.get('source_data_criteria').first().get('field_values').first().get('key')).toEqual 'DOSE'
+      expect(@patientBuilder.model.get('source_data_criteria').first().get('field_values').first().get('key')).toEqual 'SOURCE'
       expect(@patientBuilder.model.get('source_data_criteria').first().get('field_values').first().get('value')).toEqual '1'
-      expect(@patientBuilder.model.get('source_data_criteria').first().get('field_values').first().get('unit')).toEqual 'mg'
+      expect(@patientBuilder.model.get('source_data_criteria').first().get('field_values').first().get('unit')).toEqual 'unit'
 
     it "adds a coded field value", ->
       expect(@patientBuilder.model.get('source_data_criteria').first().get('field_values').length).toEqual 0
@@ -228,7 +228,7 @@ describe 'PatientBuilderView', ->
 
     it "materializes the patient", ->
       expect(@patientBuilder.model.materialize).not.toHaveBeenCalled()
-      @addScalarFieldValue 'DOSE', 1, 'mg'
+      @addScalarFieldValue 'SOURCE', 1, 'unit'
       expect(@patientBuilder.model.materialize).toHaveBeenCalled()
       expect(@patientBuilder.model.materialize.calls.length).toEqual 1
       @addCodedFieldValue 'REASON', '2.16.840.1.113883.3.464.1003.102.12.1011'
@@ -236,7 +236,7 @@ describe 'PatientBuilderView', ->
 
     it "disables input until form is filled out", ->
       expect(@patientBuilder.$('.field-value-formset .btn-primary:first')).toBeDisabled()
-      @addScalarFieldValue 'DOSE', 1, 'mg', false
+      @addScalarFieldValue 'SOURCE', 1, 'unit', false
       expect(@patientBuilder.$('.field-value-formset .btn-primary:first')).not.toBeDisabled()
       @addScalarFieldValue '', '', '', false
       expect(@patientBuilder.$('.field-value-formset .btn-primary:first')).toBeDisabled()
