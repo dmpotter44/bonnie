@@ -11,12 +11,39 @@ class Admin::UsersController < ApplicationController
     respond_with users.as_json(methods: [:measure_count, :patient_count])
   end
 
-  def email_all
-    User.asc(:email).each do |user|
-      email = Admin::AllUsersMailer.all_users_email(user, params[:subject], params[:body])
-      email.deliver
+  EmailUsersJob = Struct.new(:subject, :body) do
+    def perform
+      User.each { |user| Admin::AllUsersMailer.all_users_email(user, subject, body) }
     end
-    render json: {}
+  end
+
+  def email_all
+    job = Delayed::Job.enqueue EmailUsersJob.new(params[:subject], params[:body]), :queue => 'email_all'
+    render json: { :count => User.count(), :jobID => job.id }
+  end
+
+  def email_all_status
+    begin
+      job = Delayed::Job.find(params[:id])
+      result = { :id => job.id, :status => 'waiting' }
+      if job.failed?
+        result[:status] = 'failed'
+      end
+      if !!job.last_error
+        result[:last_error] = job.last_error
+      end
+      render json: result
+    rescue Mongoid::Errors::DocumentNotFound
+      # Since completed jobs are deleted, just lie and say it's complete. It may
+      # or may not really be complete, but whatever.
+      render json: { :id => params[:id], :status => 'complete' }
+    end
+  end
+
+  def email_all_status_all
+    render json: {
+      :jobs => Delayed::Job.where(:queue => 'email_all').collect { |job| job.id }
+    }
   end
 
   def update

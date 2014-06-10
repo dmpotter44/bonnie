@@ -32,6 +32,9 @@ Bonnie::Application.routes.draw do
     resources :users do
       collection do
         post 'email_all'
+        # "Special" status resource
+        get 'email_all/status', action: 'email_all_status_all'
+        get 'email_all/status/:id', action: 'email_all_status'
       end
       member do
         post 'approve'

@@ -64,3 +64,7 @@ gem 'foreman'
 
 gem 'handlebars_assets'
 gem 'jquery-rails'
+
+# For sending emails in the background
+gem 'delayed_job'
+gem 'delayed_job_mongoid'

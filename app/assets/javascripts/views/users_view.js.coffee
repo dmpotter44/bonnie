@@ -84,6 +84,8 @@ class Thorax.Views.EmailAllUsers extends Thorax.Views.BonnieView
 
   setup: ->
     @emailAllUsersDialog = @$("#emailAllUsersDialog")
+    @emailAllUsersMessageDialog = @$("#emailAllUsersMessageDialog")
+    @emailAllUsersProgressDialog = @$('#emailAllUsersProgressDialog')
     @subjectField = @$("#emailAllSubject")
     @bodyArea = @$("#emailAllBody")
     @sendButton = @$("#sendButton")
@@ -95,11 +97,50 @@ class Thorax.Views.EmailAllUsers extends Thorax.Views.BonnieView
       "keyboard" : true,
       "show" : true).find('.modal-dialog').css('width','650px')
 
+  showMessage: (message) ->
+    @emailAllUsersMessageDialog.find('.modal-body').text(message)
+    @emailAllUsersMessageDialog.modal(
+      "backdrop" : "static",
+      "keyboard" : true,
+      "show" : true).find('.modal-dialog').css('width','650px')
+
+  trackProgressInterval: 5000
+
+  trackProgress: (jobID) ->
+    me = this
+    url = @$('form').attr('action') + '/status/' + encodeURIComponent(jobID)
+    @emailAllUsersProgressDialog.modal(
+      "backdrop" : "static",
+      "keyboard" : false,
+      "show" : true).find('.modal-dialog').css('width','650px')
+    # Reset the everything
+    progress_bar = @emailAllUsersProgressDialog.find('.progress_bar')
+    progress_bar.css('width', '0%')
+    progress_bar.text('0%')
+    # Don't immediately ping the server, wait trackProgressInterval
+    updateStatus = ->
+      $.ajax(url, {
+        'error': (jqXHR, textStatus, error) ->
+          me.emailAllUsersProgressDialog.modal('hide')
+          me.showMessage("Error updating progress: " + jqXHR.status + " " + jqXHR.statusText)
+        'success': (data) ->
+          if (data['status'] == 'complete')
+            me.emailAllUsersProgressDialog.modal('hide')
+          else if (data['status'] == 'failed')
+            me.emailAllUsersProgressDialog.modal('hide')
+            me.showMessage("Failed to send email:\n" + data["last_error"])
+          else
+            setTimeout(updateStatus, @trackProgressInterval)
+      })
+    setTimeout(updateStatus, @trackProgressInterval)
+
   enableSend: ->
     @sendButton.prop('disabled', @subjectField.val().length == 0 || @bodyArea.val().length == 0)
 
   close: -> ''
-    # Should we ask the user to confirm that they want to cancel if there's content?
+    # Should we ask the user to confirm that they want to cancel if there's
+    # content? Since we don't blank the form, they can just reopen the dialog
+    # and send again, so I guess not.
 
   submit: ->
     form = @$('form')
@@ -107,9 +148,22 @@ class Thorax.Views.EmailAllUsers extends Thorax.Views.BonnieView
     $.ajax(form.attr('action'), {
       'type': 'POST',
       'data': form.serialize(),
-      'success': ->
+      'error': (jqXHR, textStatus, error) ->
+        # If we've failed, display an error
+        m = "Unable to send emails: "
+        if (jqXHR.status == 500)
+          m += "An internal server error occurred."
+        else if (jqXHR.status < 200 || jqXHR.status >= 300)
+          m += "Server returned an error: " + jqXHR.status + " " + jqXHR.statusText
+        else if (error)
+          m += error.toString()
+        else
+          m += "An error occurred."
+        me.showMessage(m)
+      'success': (data) ->
         # Kill the subject and body areas if we've successfully sent our message
         me.subjectField.val('')
         me.bodyArea.val('')
+        me.trackProgress(data['jobID'])
       'complete': @emailAllUsersDialog.modal('hide')
     })

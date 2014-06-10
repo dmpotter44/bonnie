@@ -295,6 +295,8 @@ DEPENDENCIES
   bonnie_bundler!
   capistrano-rails
   coffee-rails (~> 3.2.1)
+  delayed_job
+  delayed_job_mongoid
   devise
   exception_notification
   foreman
